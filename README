@@ -1,0 +1,27 @@
+http://nessie:19120/api/v2
+
+fs.s3a.path.style.access true
+fs.s3a.endpoint  minio:9000
+dremio.s3.compat true
+
+
+docker exec -it trino trino --execute "CREATE SCHEMA IF NOT EXISTS delta.warehouse WITH (location = 's3a://warehouse/');"
+
+
+warehouse
+
+CREATE SCHEMA IF NOT EXISTS mydelta.manga
+WITH (location = 's3a://warehouse/');
+
+CREATE TABLE IF NOT EXISTS mydelta.manga.test (
+  symbol VARCHAR,
+  last_price VARCHAR,
+  timestamp VARCHAR,
+  volume VARCHAR,
+  trade_conditions VARCHAR
+)
+WITH (
+  external_location = 's3a://warehouse/test',
+  format = 'PARQUET'
+);
+
