@@ -14,10 +14,11 @@ volumes:
 services:
   scripts:
     build:
-      context: .
+        context: .
+        dockerfile: docker/Dockerfile.scripts
     container_name: scripts
-    volumes:
-      - ./spark.py:/usr/app/spark.py
+    # volumes:
+    #   - ./spark.py:/usr/app/spark.py
     env_file:
       - .env
     networks:
@@ -78,7 +79,7 @@ services:
         - CMD-SHELL
         - mc ready data && mc mb --ignore-existing data/warehouse
     volumes:
-      - $PWD/minio/config.json:/.mc/config.json:ro
+      - $PWD/docker/config/minio/config.json:/.mc/config.json:ro
     ports:
       - 9000:9000
       - 9001:9001
@@ -97,9 +98,9 @@ services:
     ports:
       - 8082:8080
     volumes:
-      - $PWD/trino/catalog/memory.properties:/etc/trino/catalog/memory.properties:ro
-      - $PWD/trino/catalog/hive.properties:/etc/trino/catalog/hive.properties:ro
-      - $PWD/trino/jvm.config:/etc/trino/jvm.config:ro
+      - $PWD/docker/config/trino/catalog/memory.properties:/etc/trino/catalog/memory.properties:ro
+      - $PWD/docker/config/trino/catalog/hive.properties:/etc/trino/catalog/hive.properties:ro
+      - $PWD/docker/config/trino/jvm.config:/etc/trino/jvm.config:ro
     networks:
       - default_network
     depends_on:
@@ -123,7 +124,6 @@ services:
       - default_network
 
   hive-metastore:
-    # TODO: healthcheck?
     image: starburstdata/hive:3.1.3-e.4
     environment:
       HIVE_METASTORE_DRIVER: org.postgresql.Driver
@@ -158,28 +158,10 @@ services:
     networks:
       - default_network
 
-  # superset:
-  #   image: apache/superset:4.0.1
-  #   container_name: superset
-  #   ports:
-  #     - 8081:8080
-  #     - 8088:8088
-  #   env_file:
-  #     - .env
-  #   command: bash -c "
-  #     superset db upgrade;
-  #     superset fab create-admin --username ${SUPERSET_USER} --firstname ${SUPERSET_FIRSTNAME} --lastname ${SUPERSET_LASTNAME} --email ${SUPERSET_EMAIL} --password ${SUPERSET_PASSWORD};
-  #     superset init;
-  #     superset run -p 8088 --with-threads --reload --debugger;"
-  #   # volumes:
-  #   #   - ./superset_home:/app/superset_home
-  #   networks:
-  #     - default_network
-
   superset:
       build:
         context: .
-        dockerfile: Dockerfile.superset
+        dockerfile: docker/Dockerfile.superset
         args:
           - USER=${SUPERSET_USER}
           - FIRSTNAME=${SUPERSET_FIRSTNAME}
