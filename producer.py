@@ -1,12 +1,19 @@
-key = ''
+
 
 from kafka import KafkaProducer
-from functools import partial
 import websocket
 import json
+import os
+from dotenv import load_dotenv
+
+load_dotenv() 
+
+
+key = os.getenv('FINNHUB_API_KEY')
+kafka_servers = os.getenv('KAFKA_SERVERS').split(',')  # 'Kafka00Service:9092'
 
 kafka_producer = KafkaProducer(
-    bootstrap_servers=['Kafka00Service:9092'],
+    bootstrap_servers=kafka_servers,
     value_serializer=lambda msg: json.dumps(msg).encode('utf-8'),
 )
 

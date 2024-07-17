@@ -1,27 +1,43 @@
-http://nessie:19120/api/v2
+# manga-stock-prices
 
-fs.s3a.path.style.access true
-fs.s3a.endpoint  minio:9000
-dremio.s3.compat true
+<p>
+<img alt="Docker" src="https://img.shields.io/badge/-Docker-2496ED?style=flat&logo=docker&logoColor=white" style="width:6%" />
+<img alt="PySpark" src="https://img.shields.io/badge/-Apache%20Spark-E25A1C?style=flat&logo=apachespark&logoColor=white" style="width:9.5%" />
+<img alt="Kafka" src="https://img.shields.io/badge/-Apache Kafka-231F20?style=flat&logo=apachekafka&logoColor=white" style="width:9.5%" />
+<img alt="MinIO" src="https://img.shields.io/badge/-MinIO-C72E49?style=flat&logo=minio&logoColor=white" style="width:5.7%" />
+<img alt="Trino" src="https://img.shields.io/badge/-Trino-DD00A1?style=flat&logo=trino&logoColor=white" style="width:5.2%" />
+<img alt="Apache Superset" src="https://upload.wikimedia.org/wikipedia/commons/thumb/0/0e/Superset_logo.svg/512px-Superset_logo.svg.png?20210129193338" style="width:7.3%" />
 
+---
 
-docker exec -it trino trino --execute "CREATE SCHEMA IF NOT EXISTS delta.warehouse WITH (location = 's3a://warehouse/');"
+## Project Organization
 
+```markdown
+├── README.md
+├── docker                  <- The top-level README for developers using this project
+├── clickhouse              <- Clickhouse artifacts and DB
+├── minio
+|   ├── bucket_setup.sh     <- Script to setup storage instance
+│   └── data                <- MinIO artifacts and DB
+├── prefect
+|   ├── create_blocks.py    <- Script to store credentials in prefect blocks
+|   ├── prefect.yaml        <- Config file to register prefect workflow
+│   └── database            <- Prefect artifacts and DB
+├── scraper                 <- Workflow code
+|      ├── workflows
+│           ├── src         <- Source code modules
+│           └── elt.py      <- Main reference file for the workflow
+│
+└── build.sh                <- Script to build containers and setup services
+```
 
-warehouse
+---
 
-CREATE SCHEMA IF NOT EXISTS mydelta.manga
-WITH (location = 's3a://warehouse/');
+## Launch the Project
 
-CREATE TABLE IF NOT EXISTS mydelta.manga.test (
-  symbol VARCHAR,
-  last_price VARCHAR,
-  timestamp VARCHAR,
-  volume VARCHAR,
-  trade_conditions VARCHAR
-)
-WITH (
-  external_location = 's3a://warehouse/test',
-  format = 'PARQUET'
-);
+```bash
+sh build.sh
+```
 
+- `prefect` - Prefect UI, available on [http://localhost:4200](http://localhost:4200)
+- `minio` - MinIO Storage UI, available on [http://localhost:9001](http://localhost:9001)
