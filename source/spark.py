@@ -40,7 +40,7 @@ try:
         .outputMode("append")
         .option("mergeSchema", "true")
         .option("checkpointLocation", delta_logs_path)
-        .trigger(processingTime="30 seconds")
+        .trigger(processingTime="10 seconds")
         .start(delta_table_path)
         .awaitTermination()
     )

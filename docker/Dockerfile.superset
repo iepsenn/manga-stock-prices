@@ -10,6 +10,12 @@ ARG SUPERSET_SECRET_KEY
 ENV PYTHONUNBUFFERED=1
 RUN pip install trino
 
+USER root
+COPY ./docker/volume/superset /app/superset_home
+RUN chmod +x /app/superset_home
+RUN chown -R superset:superset /app/superset_home
+
+USER superset
 RUN superset db upgrade;
 RUN superset fab create-admin \
     --username ${USER} \

@@ -6,6 +6,9 @@ networks:
 volumes:
   kafka_broker:
     driver: local
+  
+  minio:
+    driver: local
 
 services:
   scripts:
@@ -13,8 +16,6 @@ services:
         context: .
         dockerfile: docker/Dockerfile.scripts
     container_name: scripts
-    # volumes:
-    #   - ./spark.py:/usr/app/spark.py
     env_file:
       - .env
     networks:
@@ -63,7 +64,7 @@ services:
     user: "1000"
     volumes:
       - $PWD/docker/config/minio/config.json:/.mc/config.json:ro
-      - $PWD/docker/volume/minio:/bitnami/minio/data
+      - minio:/bitnami/minio/data
     networks:
       - default_network
   
@@ -97,18 +98,11 @@ services:
       interval: 1s
       retries: 20
       test: ["CMD-SHELL", "pg_isready -d ${POSTGRES_DB} -U ${POSTGRES_USER} --port=23456"]
-      # test:
-      #   - CMD
-      #   - pg_isready
-      #   - "d $POSTGRES_DB"
-      #   - "-U $POSTGRES_USER"
-      #   - --port=23456
     command: -c port=23456
     ports:
       - 23456:23456
     env_file:
       - .env
-    # user: root
     user: "1000"
     volumes:
       - $PWD/docker/volume/postgres:/var/lib/postgresql/data
@@ -148,7 +142,5 @@ services:
       env_file:
         - .env
       user: "1000"
-      volumes:
-        - $PWD/docker/volume/superset:/app/superset_home
       networks:
         - default_network
